@@ -1,4 +1,4 @@
-export class Cursor {
+/*export class Cursor {
   active: boolean;
   x: number;
   y: number;
@@ -19,3 +19,4 @@ export class Coordinate {
     this.y = newY;
   }
 }
+*/
