@@ -1,4 +1,5 @@
 import "./style.css";
+import { Point } from "./draw";
 //import { MarkerLine } from "./draw.ts";
 //import { LineCommand } from "./draw.ts";
 //import { Cursor } from "./draw.ts";
@@ -54,10 +55,11 @@ function tick() {
 //tick();
 
 class LineCommand {
-  points: [{ x: number; y: number }];
+  pointsArr: Point[];
 
   constructor(newX: number, newY: number) {
-    this.points = [{ x: newX, y: newY }];
+    const newPoint = { x: newX, y: newY };
+    this.pointsArr = [newPoint];
   }
 
   execute() {
@@ -65,16 +67,17 @@ class LineCommand {
     ctx.lineWidth = 3;
     //ctx.strokeWidth = 4;
     ctx.beginPath();
-    const { x, y } = this.points[zero];
+    const { x, y } = this.pointsArr[zero];
     ctx.moveTo(x, y);
-    for (const { x, y } of this.points) {
+    for (const { x, y } of this.pointsArr) {
       const k = 2;
       ctx.lineTo(x + Math.random() * k, y + Math.random() * k);
     }
     ctx.stroke();
   }
   grow(x: number, y: number) {
-    this.points.push({ x, y });
+    const newPoint = { x, y };
+    this.pointsArr.push(newPoint);
   }
 }
 
@@ -88,8 +91,8 @@ class CursorCommand {
   }
 
   execute() {
-    ctx.font = "32px monospace";
-    ctx.fillText("*", this.x - 8, this.y + 16);
+    ctx.font = "10px Arial";
+    ctx.fillText("*", this.x, this.y);
   }
 }
 
@@ -110,7 +113,7 @@ canvas.addEventListener("mousemove", (e) => {
   notify("cursor-changed");
 
   if (e.buttons == 1) {
-    currentLineCommand?.points.push({ x: e.offsetX, y: e.offsetY });
+    currentLineCommand?.pointsArr.push({ x: e.offsetX, y: e.offsetY });
     notify("drawing-changed");
   }
 });
@@ -165,3 +168,13 @@ redoButton.addEventListener("click", () => {
 function createLineBreak() {
   app.append(document.createElement("br"));
 }
+
+createLineBreak();
+
+const thickerButton = document.createElement("button");
+thickerButton.innerHTML = "Thicker";
+app.append(thickerButton);
+
+const thinnerButton = document.createElement("button");
+thinnerButton.innerHTML = "Thinner";
+app.append(thinnerButton);
