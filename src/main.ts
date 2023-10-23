@@ -1,7 +1,8 @@
 import "./style.css";
-import { Point } from "./draw";
+//import { Point } from "./draw";
+import { CursorCommand } from "./draw";
+import { LineCommand } from "./draw.ts";
 //import { MarkerLine } from "./draw.ts";
-//import { LineCommand } from "./draw.ts";
 //import { Cursor } from "./draw.ts";
 //import { Coordinate } from "./draw.ts";
 
@@ -37,10 +38,10 @@ function notify(name: string) {
 function redraw() {
   ctx.clearRect(zero, zero, canvas.width, canvas.height);
 
-  commands.forEach((cmd) => cmd.execute());
+  commands.forEach((cmd) => cmd.execute(ctx));
 
   if (cursorCommand) {
-    cursorCommand.execute();
+    cursorCommand.execute(ctx);
   }
 }
 
@@ -53,48 +54,6 @@ function tick() {
 }
 */
 //tick();
-
-class LineCommand {
-  pointsArr: Point[];
-
-  constructor(newX: number, newY: number) {
-    const newPoint = { x: newX, y: newY };
-    this.pointsArr = [newPoint];
-  }
-
-  execute() {
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 3;
-    //ctx.strokeWidth = 4;
-    ctx.beginPath();
-    const { x, y } = this.pointsArr[zero];
-    ctx.moveTo(x, y);
-    for (const { x, y } of this.pointsArr) {
-      const k = 2;
-      ctx.lineTo(x + Math.random() * k, y + Math.random() * k);
-    }
-    ctx.stroke();
-  }
-  grow(x: number, y: number) {
-    const newPoint = { x, y };
-    this.pointsArr.push(newPoint);
-  }
-}
-
-class CursorCommand {
-  x: number;
-  y: number;
-
-  constructor(newX: number, newY: number) {
-    this.x = newX;
-    this.y = newY;
-  }
-
-  execute() {
-    ctx.font = "10px Arial";
-    ctx.fillText("*", this.x, this.y);
-  }
-}
 
 let currentLineCommand: LineCommand | null = null;
 
