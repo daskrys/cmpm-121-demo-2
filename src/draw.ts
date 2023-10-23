@@ -1,3 +1,12 @@
+let markerWidth = 3;
+
+export function getMarkerWidth() {
+  return markerWidth;
+}
+export function setMarkerWidth(newWidth: number) {
+  markerWidth = newWidth;
+}
+
 export interface Point {
   x: number;
   y: number;
@@ -20,31 +29,24 @@ export class CursorCommand {
 
 export class LineCommand {
   pointsArr: Point[];
-  markerWidth: number;
 
   constructor(newX: number, newY: number) {
     const newPoint = { x: newX, y: newY };
     this.pointsArr = [newPoint];
-    this.markerWidth = 3;
   }
 
   execute(ctx: CanvasRenderingContext2D) {
     const zero = 0;
     ctx.strokeStyle = "black";
-    ctx.lineWidth = this.markerWidth;
+    ctx.lineWidth = markerWidth;
     //ctx.strokeWidth = 4;
     ctx.beginPath();
     const { x, y } = this.pointsArr[zero];
     ctx.moveTo(x, y);
     for (const { x, y } of this.pointsArr) {
-      const k = 2;
-      ctx.lineTo(x + Math.random() * k, y + Math.random() * k);
+      ctx.lineTo(x, y);
     }
     ctx.stroke();
-  }
-
-  changeMarkerWidth(newWidth: number) {
-    this.markerWidth = newWidth;
   }
 
   drag(x: number, y: number) {

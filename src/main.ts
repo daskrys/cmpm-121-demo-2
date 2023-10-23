@@ -1,5 +1,7 @@
 import "./style.css";
 //import { Point } from "./draw";
+import { setMarkerWidth } from "./draw";
+import { getMarkerWidth } from "./draw";
 import { CursorCommand } from "./draw";
 import { LineCommand } from "./draw.ts";
 //import { MarkerLine } from "./draw.ts";
@@ -141,3 +143,13 @@ app.append(thickerButton);
 const thinnerButton = document.createElement("button");
 thinnerButton.innerHTML = "Thinner";
 app.append(thinnerButton);
+
+thickerButton.addEventListener("click", () => {
+  const markerWidth = getMarkerWidth();
+  setMarkerWidth(markerWidth + 1);
+});
+
+thinnerButton.addEventListener("click", () => {
+  const markerWidth = getMarkerWidth();
+  setMarkerWidth(markerWidth - 1);
+});
