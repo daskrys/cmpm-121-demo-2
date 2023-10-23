@@ -13,23 +13,25 @@ export class CursorCommand {
   }
 
   execute(ctx: CanvasRenderingContext2D) {
-    ctx.font = "10px Arial";
+    ctx.font = "15px Helvetica";
     ctx.fillText("*", this.x, this.y);
   }
 }
 
 export class LineCommand {
   pointsArr: Point[];
+  markerWidth: number;
 
   constructor(newX: number, newY: number) {
     const newPoint = { x: newX, y: newY };
     this.pointsArr = [newPoint];
+    this.markerWidth = 3;
   }
 
   execute(ctx: CanvasRenderingContext2D) {
     const zero = 0;
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = this.markerWidth;
     //ctx.strokeWidth = 4;
     ctx.beginPath();
     const { x, y } = this.pointsArr[zero];
@@ -40,7 +42,12 @@ export class LineCommand {
     }
     ctx.stroke();
   }
-  grow(x: number, y: number) {
+
+  changeMarkerWidth(newWidth: number) {
+    this.markerWidth = newWidth;
+  }
+
+  drag(x: number, y: number) {
     const newPoint = { x, y };
     this.pointsArr.push(newPoint);
   }
@@ -55,7 +62,8 @@ export class MarkerLine {
   }
 
   drag(x: number, y: number) {
-    this.pointArr.push({ x: x, y: y });
+    const newPoint = { x, y };
+    this.pointArr.push(newPoint);
   }
 
   display(ctx: CanvasRenderingContext2D) {
@@ -76,26 +84,3 @@ export class MarkerLine {
     ctx.stroke();
   }
 }
-
-/*export class Cursor {
-  active: boolean;
-  x: number;
-  y: number;
-
-  constructor(newActive: boolean, newX: number, newY: number) {
-    this.active = newActive;
-    this.x = newX;
-    this.y = newY;
-  }
-}
-
-export class Coordinate {
-  x: number;
-  y: number;
-
-  constructor(newX: number, newY: number) {
-    this.x = newX;
-    this.y = newY;
-  }
-}
-*/
