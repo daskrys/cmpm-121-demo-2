@@ -1,4 +1,5 @@
 import "./style.css";
+//import { MarkerLine } from "./draw.ts";
 //import { LineCommand } from "./draw.ts";
 //import { Cursor } from "./draw.ts";
 //import { Coordinate } from "./draw.ts";
@@ -20,11 +21,11 @@ app.append(canvas);
 
 app.append(document.createElement("br"));
 
-const ctx = canvas.getContext("2d")!;
+const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
 const commands: LineCommand[] = [];
 const redoCommands: LineCommand[] = [];
 
-let cursorCommand: LineCommand | null = null;
+let cursorCommand: CursorCommand | null = null;
 
 const bus = new EventTarget();
 
@@ -44,13 +45,13 @@ function redraw() {
 
 bus.addEventListener("drawing-changed", redraw);
 bus.addEventListener("cursor-changed", redraw);
-
+/*
 function tick() {
   redraw();
   requestAnimationFrame(tick);
 }
-
-tick();
+*/
+//tick();
 
 class LineCommand {
   points: [{ x: number; y: number }];
@@ -61,7 +62,7 @@ class LineCommand {
 
   execute() {
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     //ctx.strokeWidth = 4;
     ctx.beginPath();
     const { x, y } = this.points[zero];
@@ -77,20 +78,35 @@ class LineCommand {
   }
 }
 
+class CursorCommand {
+  x: number;
+  y: number;
+
+  constructor(newX: number, newY: number) {
+    this.x = newX;
+    this.y = newY;
+  }
+
+  execute() {
+    ctx.font = "32px monospace";
+    ctx.fillText("*", this.x - 8, this.y + 16);
+  }
+}
+
 let currentLineCommand: LineCommand | null = null;
 
-canvas.addEventListener("mouseout", (e) => {
+canvas.addEventListener("mouseout", () => {
   cursorCommand = null;
   notify("cursor-changed");
 });
 
 canvas.addEventListener("mouseenter", (e) => {
-  cursorCommand = new LineCommand(e.offsetX, e.offsetY);
+  cursorCommand = new CursorCommand(e.offsetX, e.offsetY);
   notify("cursor-changed");
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  cursorCommand = new LineCommand(e.offsetX, e.offsetY);
+  cursorCommand = new CursorCommand(e.offsetX, e.offsetY);
   notify("cursor-changed");
 
   if (e.buttons == 1) {
@@ -106,13 +122,13 @@ canvas.addEventListener("mousedown", (e) => {
   notify("drawing-changed");
 });
 
-canvas.addEventListener("mouseup", (e) => {
+canvas.addEventListener("mouseup", () => {
   currentLineCommand = null;
   notify("drawing-changed");
 });
 
-app.append(document.createElement("br"));
-
+createLineBreak();
+// clear / undo / redo buttons
 const clearButton = document.createElement("button");
 clearButton.innerHTML = "Clear";
 app.append(clearButton);
@@ -146,118 +162,6 @@ redoButton.addEventListener("click", () => {
   }
 });
 
-/*
-const app: HTMLDivElement = document.querySelector("#app")!;
-const gameName = "D2";
-const zero = 0;
-
-document.title = gameName;
-
-const header = document.createElement("h1");
-header.innerHTML = gameName;
-app.append(header);
-
-const canvas = document.createElement("canvas");
-canvas.id = "myCanvas";
-app.append(canvas);
-
-app.append(document.createElement("br"));
-
-const clearButton = document.createElement("button");
-clearButton.innerHTML = "Clear";
-app.append(clearButton);
-
-const undoButton = document.createElement("button");
-undoButton.innerHTML = "Undo";
-app.append(undoButton);
-
-const redoButton = document.createElement("button");
-redoButton.innerHTML = "Redo";
-app.append(redoButton);
-
-const drawingEventChanged = new Event("drawing-changed");
-const lines: { x: number; y: number }[][] = [];
-let currentLine: { x: number; y: number }[] | null = [];
-const redoLines: { x: number; y: number }[][] = [];
-
-const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
-const cursor: Cursor = new Cursor(false, zero, zero);
-
-//const lines: Path2D[][] = [];
-//const redoLines: Path2D[] = [];
-//let currentLine: Path2D[] | null = null;
-
-canvas.addEventListener("mousedown", (e) => {
-  cursor.active = true;
-  cursor.x = e.offsetX;
-  cursor.y = e.offsetY;
-
-  //const coord = new Coordinate(cursor.x, cursor.y);
-
-  currentLine = [];
-  lines.push(currentLine);
-  redoLines.splice(zero, redoLines.length);
-  currentLine.push({ x: cursor.x, y: cursor.y });
-  canvas.dispatchEvent(drawingEventChanged);
-  //redraw();
-});
-
-canvas.addEventListener("mousemove", (e) => {
-  if (cursor.active) {
-    cursor.x = e.offsetX;
-    cursor.y = e.offsetY;
-    const coord = new Coordinate(cursor.x, cursor.y);
-    currentLine!.push(coord);
-    canvas.dispatchEvent(drawingEventChanged);
-    //redraw();
-  }
-});
-
-canvas.addEventListener("mouseup", () => {
-  cursor.active = false;
-  currentLine = null;
-  canvas.dispatchEvent(drawingEventChanged);
-  //redraw();
-});
-
-clearButton.addEventListener("click", () => {
-  lines.splice(zero, lines.length);
-  canvas.dispatchEvent(drawingEventChanged);
-  //redraw();
-});
-
-undoButton.addEventListener("click", () => {
-  if (lines.length > zero) {
-    const line = lines.pop()!;
-    redoLines.push(line);
-    canvas.dispatchEvent(drawingEventChanged);
-    //redraw();
-  }
-});
-
-redoButton.addEventListener("click", () => {
-  if (redoLines.length > zero) {
-    const line = redoLines.pop()!;
-    lines.push(line);
-    canvas.dispatchEvent(drawingEventChanged);
-    //redraw();
-  }
-});
-
-canvas.addEventListener("drawing-changed", () => {
-  redraw();
-});
-
-function redraw() {
-  ctx.clearRect(zero, zero, canvas.width, canvas.height);
-  for (const line of lines) {
-    ctx.beginPath();
-    const { x, y } = line[zero];
-    ctx.moveTo(x, y);
-    for (const { x, y } of line) {
-      ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
+function createLineBreak() {
+  app.append(document.createElement("br"));
 }
-*/
