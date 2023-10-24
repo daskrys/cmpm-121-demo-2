@@ -1,3 +1,5 @@
+const twelve = 12;
+const zero = 0;
 export interface Point {
   x: number;
   y: number;
@@ -6,7 +8,7 @@ export interface Point {
 export class CursorCommand {
   x: number;
   y: number;
-  thickness: number = 15;
+  thickness: number = twelve;
 
   constructor(newX: number, newY: number) {
     this.x = newX;
@@ -30,7 +32,7 @@ export class LineCommand {
   markerWidth: number;
 
   constructor(newThickness: number) {
-    if (newThickness <= 0) {
+    if (newThickness <= zero) {
       this.markerWidth = 1;
     }
 
@@ -39,7 +41,10 @@ export class LineCommand {
   }
 
   execute(ctx: CanvasRenderingContext2D) {
-    const zero = 0;
+    if (this.pointsArr.length == zero) {
+      return;
+    }
+
     ctx.strokeStyle = "black";
     ctx.lineWidth = this.markerWidth;
     ctx.beginPath();
@@ -100,12 +105,12 @@ export class MarkerLine {
   }
 
   display(ctx: CanvasRenderingContext2D) {
-    if (this.pointArr.length == 0) {
+    if (this.pointArr.length == zero) {
       return;
     }
 
     ctx.lineWidth = parseInt(this.markerThickness);
-    const first: Point = this.pointArr[0];
+    const first: Point = this.pointArr[zero];
 
     ctx.beginPath();
     ctx.moveTo(first.x, first.y);

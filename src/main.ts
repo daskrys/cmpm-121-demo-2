@@ -10,6 +10,8 @@ import { LineCommand } from "./draw.ts";
 const app: HTMLDivElement = document.querySelector("#app")!;
 const gameName = "'";
 const zero = 0;
+const one = 1;
+const scaleFactor = 4;
 let thickness = 3;
 let markerThickness = 15;
 
@@ -43,7 +45,11 @@ canvas.addEventListener("cursor-changed", () => {
 });
 
 canvas.addEventListener("tool-changed", () => {
-  markerThickness = thickness * 5; // updates thickness of indicaotr
+  if (thickness <= 0) {
+    thickness = one;
+  }
+
+  markerThickness = thickness * scaleFactor; // updates thickness of indicaotr
 });
 
 function redraw() {
@@ -76,13 +82,13 @@ canvas.addEventListener("mousemove", (e) => {
   cursorCommand = new CursorCommand(e.offsetX, e.offsetY);
   canvas.dispatchEvent(cursorChanged);
 
-  if (e.buttons == 1) {
+  if (e.buttons == one) {
     currentLineCommand?.pointsArr.push({ x: e.offsetX, y: e.offsetY });
     canvas.dispatchEvent(drawingChanged);
   }
 });
 
-canvas.addEventListener("mousedown", (e) => {
+canvas.addEventListener("mousedown", () => {
   currentLineCommand = new LineCommand(thickness);
   commands.push(currentLineCommand);
   redoCommands.splice(zero, redoCommands.length);
@@ -152,3 +158,20 @@ thinnerButton.addEventListener("click", () => {
   thickness--;
   canvas.dispatchEvent(toolChanged);
 });
+
+createLineBreak();
+// stickers
+const ghostButton = document.createElement("button");
+ghostButton.style.fontSize = "1.5em";
+ghostButton.innerHTML = "👻";
+app.append(ghostButton);
+
+const owlButton = document.createElement("button");
+owlButton.innerHTML = "🦉";
+owlButton.style.fontSize = "1.5em";
+app.append(owlButton);
+
+const magicBallButton = document.createElement("button");
+magicBallButton.innerHTML = "🔮";
+magicBallButton.style.fontSize = "1.5em";
+app.append(magicBallButton);
