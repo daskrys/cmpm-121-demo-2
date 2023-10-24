@@ -1,7 +1,5 @@
 import "./style.css";
 //import { Point } from "./draw";
-import { setMarkerWidth } from "./draw";
-import { getMarkerWidth } from "./draw";
 import { CursorCommand } from "./draw";
 import { LineCommand } from "./draw.ts";
 //import { MarkerLine } from "./draw.ts";
@@ -10,8 +8,10 @@ import { LineCommand } from "./draw.ts";
 
 ("use strict");
 const app: HTMLDivElement = document.querySelector("#app")!;
-const gameName = "D2";
+const gameName = "'";
 const zero = 0;
+let thickness = 3;
+let markerThickness = 15;
 
 document.title = gameName;
 
@@ -32,6 +32,7 @@ const redoCommands: LineCommand[] = [];
 let cursorCommand: CursorCommand | null = null;
 const drawingChanged = new Event("drawing-changed");
 const cursorChanged = new Event("cursor-changed");
+const toolChanged = new Event("tool-changed");
 
 canvas.addEventListener("drawing-changed", () => {
   redraw();
@@ -39,6 +40,10 @@ canvas.addEventListener("drawing-changed", () => {
 
 canvas.addEventListener("cursor-changed", () => {
   redraw();
+});
+
+canvas.addEventListener("tool-changed", () => {
+  markerThickness = thickness * 5; // updates thickness of indicaotr
 });
 
 function redraw() {
@@ -50,16 +55,10 @@ function exec() {
   commands.forEach((cmd) => cmd.execute(ctx));
 
   if (cursorCommand) {
+    cursorCommand.updateThickness(markerThickness);
     cursorCommand.execute(ctx);
   }
 }
-/*
-function tick() {
-  redraw();
-  requestAnimationFrame(tick);
-}
-*/
-//tick();
 
 let currentLineCommand: LineCommand | null = null;
 
@@ -84,7 +83,7 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 canvas.addEventListener("mousedown", (e) => {
-  currentLineCommand = new LineCommand(e.offsetX, e.offsetY);
+  currentLineCommand = new LineCommand(thickness);
   commands.push(currentLineCommand);
   redoCommands.splice(zero, redoCommands.length);
   canvas.dispatchEvent(drawingChanged);
@@ -145,11 +144,11 @@ thinnerButton.innerHTML = "Thinner";
 app.append(thinnerButton);
 
 thickerButton.addEventListener("click", () => {
-  const markerWidth = getMarkerWidth();
-  setMarkerWidth(markerWidth + 1);
+  thickness++;
+  canvas.dispatchEvent(toolChanged);
 });
 
 thinnerButton.addEventListener("click", () => {
-  const markerWidth = getMarkerWidth();
-  setMarkerWidth(markerWidth - 1);
+  thickness--;
+  canvas.dispatchEvent(toolChanged);
 });
