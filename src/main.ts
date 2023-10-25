@@ -51,6 +51,7 @@ canvas.addEventListener("cursor-changed", () => {
 
 canvas.addEventListener("sticker-changed", () => {
   waiting = true;
+  redraw();
 });
 
 canvas.addEventListener("tool-changed", () => {
@@ -68,9 +69,8 @@ function redraw() {
 
 function exec() {
   commands.forEach((cmd) => cmd.execute(ctx));
-  stickers.forEach((stick) =>
-    stick.execute(ctx, stick.points.x, stick.points.y)
-  );
+
+  stickers.forEach((stick) => stick.execute(ctx));
 
   if (cursorCommand) {
     cursorCommand.changeCursor(currCursor);
@@ -103,7 +103,12 @@ canvas.addEventListener("mousemove", (e) => {
 
 canvas.addEventListener("mousedown", (e) => {
   if (waiting) {
-    const newSticker = new Stickers(e.offsetX, e.offsetY, currCursor);
+    const newSticker = new Stickers(
+      e.offsetX,
+      e.offsetY,
+      currCursor,
+      thickness
+    );
     stickers.push(newSticker);
     waiting = false;
     currCursor = "*";
@@ -170,6 +175,14 @@ const thinnerButton = document.createElement("button");
 thinnerButton.innerHTML = "Thinner";
 app.append(thinnerButton);
 
+const customEmojiButton = document.createElement("button");
+customEmojiButton.innerHTML = "Custom Emoji";
+app.append(customEmojiButton);
+
+customEmojiButton.addEventListener("click", () => {
+  addCustomEmoji();
+});
+
 thickerButton.addEventListener("click", () => {
   thickness++;
   canvas.dispatchEvent(toolChanged);
@@ -181,33 +194,34 @@ thinnerButton.addEventListener("click", () => {
 });
 
 createLineBreak();
+let emojis: string[] = ["👻", "🦉", "🔮"];
 // stickers
-const ghostButton = document.createElement("button");
-ghostButton.style.fontSize = "1.5em";
-ghostButton.innerHTML = "👻";
-app.append(ghostButton);
 
-const owlButton = document.createElement("button");
-owlButton.innerHTML = "🦉";
-owlButton.style.fontSize = "1.5em";
-app.append(owlButton);
+function createEmojiButtons() {
+  for (let i = zero; i < emojis.length; i++) {
+    const emojiButton = document.createElement("button");
+    emojiButton.innerHTML = emojis[i];
+    emojiButton.style.fontSize = "1.5em";
+    app.append(emojiButton);
 
-const magicBallButton = document.createElement("button");
-magicBallButton.innerHTML = "🔮";
-magicBallButton.style.fontSize = "1.5em";
-app.append(magicBallButton);
+    emojiButton.addEventListener("click", () => {
+      currCursor = emojis[i];
+      canvas.dispatchEvent(stickerChange);
+    });
+  }
+}
 
-ghostButton.addEventListener("click", () => {
-  currCursor = "👻";
-  canvas.dispatchEvent(stickerChange);
-});
+function addCustomEmoji() {
+  const newEmoji = prompt("Enter a new emoji");
+  if (newEmoji != null) {
+    emojis.push(newEmoji);
+    const emojiButton = document.createElement("button");
+    emojiButton.innerHTML = newEmoji;
+    emojiButton.style.fontSize = "1.5em";
+    app.append(emojiButton);
+    currCursor = newEmoji;
+    canvas.dispatchEvent(stickerChange);
+  }
+}
 
-owlButton.addEventListener("click", () => {
-  currCursor = "🦉";
-  canvas.dispatchEvent(stickerChange);
-});
-
-magicBallButton.addEventListener("click", () => {
-  currCursor = "🔮";
-  canvas.dispatchEvent(stickerChange);
-});
+createEmojiButtons();

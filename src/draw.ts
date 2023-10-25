@@ -1,5 +1,6 @@
 const twelve = 12;
 const zero = 0;
+
 export interface Point {
   x: number;
   y: number;
@@ -9,7 +10,7 @@ export class CursorCommand {
   x: number;
   y: number;
   thickness: number = twelve;
-  cursor: string = "*";
+  cursor = "*";
 
   constructor(newX: number, newY: number) {
     this.x = newX;
@@ -68,19 +69,39 @@ export class LineCommand {
 
 export class Stickers {
   emoji: string;
-  points: Point;
+  stickerArr: Point[];
+  markerWidth: number;
 
-  constructor(newX: number, newY: number, newEmoji: string) {
+  constructor(
+    newX: number,
+    newY: number,
+    newEmoji: string,
+    newThickness: number
+  ) {
+    if (newThickness <= zero) {
+      this.markerWidth = 1;
+    }
+
     this.emoji = newEmoji;
-    this.points = { x: newX, y: newY };
+    this.stickerArr = [];
+    this.stickerArr.push({ x: newX, y: newY });
+    this.markerWidth = newThickness;
   }
 
-  execute(ctx: CanvasRenderingContext2D, newX: number, newY: number) {
-    this.points = { x: newX, y: newY };
-    ctx.fillText(this.emoji, newX, newY);
+  execute(ctx: CanvasRenderingContext2D) {
+    if (this.stickerArr.length == zero) {
+      return;
+    }
+
+    ctx.fillText(
+      this.emoji,
+      this.stickerArr[zero].x,
+      this.stickerArr[zero].y,
+      this.markerWidth
+    );
   }
 
   drag(newX: number, newY: number) {
-    this.points = { x: newX, y: newY };
+    this.stickerArr.push({ x: newX, y: newY });
   }
 }
