@@ -1,15 +1,9 @@
 import "./style.css";
-//import { Point } from "./draw";
-import { CursorCommand } from "./draw";
-import { LineCommand } from "./draw.ts";
-import { Stickers } from "./draw.ts";
-//import { MarkerLine } from "./draw.ts";
-//import { Cursor } from "./draw.ts";
-//import { Coordinate } from "./draw.ts";
+import { CursorCommand, LineCommand, Stickers } from "./draw";
 
 ("use strict");
 const app: HTMLDivElement = document.querySelector("#app")!;
-const gameName = "🎃";
+const gameName = "🎃 Halloween Havoc 🎃";
 const zero = 0;
 const one = 1;
 const scaleFactor = 4;

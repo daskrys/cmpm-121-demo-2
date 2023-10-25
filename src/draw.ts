@@ -105,4 +105,3 @@ export class Stickers {
     this.pointsArr.push({ x: newX, y: newY });
   }
 }
-// 11 & 12
