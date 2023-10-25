@@ -31,9 +31,8 @@ app.append(canvas);
 createLineBreak();
 
 const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
-const commands: LineCommand[] = [];
-const redoCommands: LineCommand[] = [];
-const stickers: Stickers[] = [];
+const commands: (LineCommand | Stickers)[] = [];
+const redoCommands: (LineCommand | Stickers)[] = [];
 
 let cursorCommand: CursorCommand | null = null;
 const drawingChanged = new Event("drawing-changed");
@@ -70,8 +69,6 @@ function redraw() {
 function exec() {
   commands.forEach((cmd) => cmd.execute(ctx));
 
-  stickers.forEach((stick) => stick.execute(ctx));
-
   if (cursorCommand) {
     cursorCommand.changeCursor(currCursor);
     cursorCommand.updateThickness(markerThickness);
@@ -79,7 +76,7 @@ function exec() {
   }
 }
 
-let currentLineCommand: LineCommand | null = null;
+let currentLineCommand: LineCommand | Stickers | null = null;
 
 canvas.addEventListener("mouseout", () => {
   cursorCommand = null;
@@ -107,9 +104,9 @@ canvas.addEventListener("mousedown", (e) => {
       e.offsetX,
       e.offsetY,
       currCursor,
-      thickness
+      markerThickness * scaleFactor
     );
-    stickers.push(newSticker);
+    commands.push(newSticker);
     waiting = false;
     currCursor = "*";
   }
@@ -133,7 +130,6 @@ app.append(clearButton);
 
 clearButton.addEventListener("click", () => {
   commands.splice(zero, commands.length);
-  stickers.splice(zero, stickers.length);
   canvas.dispatchEvent(drawingChanged);
 });
 
@@ -194,7 +190,7 @@ thinnerButton.addEventListener("click", () => {
 });
 
 createLineBreak();
-let emojis: string[] = ["👻", "🦉", "🔮"];
+const emojis: string[] = ["👻", "🦉", "🔮"];
 // stickers
 
 function createEmojiButtons() {
@@ -225,3 +221,30 @@ function addCustomEmoji() {
 }
 
 createEmojiButtons();
+
+function exportCanvas() {
+  const newCanvas: HTMLCanvasElement = document.createElement("canvas");
+  newCanvas.id = "myCanvas";
+  newCanvas.width = canvas.width * 2;
+  newCanvas.height = canvas.height * 4;
+
+  const newCtx = newCanvas.getContext("2d")!;
+  newCtx.fillStyle = "white";
+  newCtx.scale(2, 4);
+  newCtx.fillRect(zero, zero, canvas.width, canvas.height);
+
+  commands.forEach((cmd) => cmd.execute(newCtx));
+
+  const save = document.createElement("a");
+  save.href = newCanvas.toDataURL("image/png");
+  save.download = "sketchpad.png";
+  save.click();
+}
+
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "Export";
+app.append(exportButton);
+
+exportButton.addEventListener("click", () => {
+  exportCanvas();
+});

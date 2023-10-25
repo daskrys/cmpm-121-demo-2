@@ -69,7 +69,7 @@ export class LineCommand {
 
 export class Stickers {
   emoji: string;
-  stickerArr: Point[];
+  pointsArr: Point[];
   markerWidth: number;
 
   constructor(
@@ -83,25 +83,27 @@ export class Stickers {
     }
 
     this.emoji = newEmoji;
-    this.stickerArr = [];
-    this.stickerArr.push({ x: newX, y: newY });
+    this.pointsArr = [];
+    this.pointsArr.push({ x: newX, y: newY });
     this.markerWidth = newThickness;
   }
 
   execute(ctx: CanvasRenderingContext2D) {
-    if (this.stickerArr.length == zero) {
+    if (this.pointsArr.length == zero) {
       return;
     }
 
     ctx.fillText(
       this.emoji,
-      this.stickerArr[zero].x,
-      this.stickerArr[zero].y,
+      this.pointsArr[zero].x,
+      this.pointsArr[zero].y,
       this.markerWidth
     );
+
+    //ctx.stroke();
   }
 
   drag(newX: number, newY: number) {
-    this.stickerArr.push({ x: newX, y: newY });
+    this.pointsArr.push({ x: newX, y: newY });
   }
 }
