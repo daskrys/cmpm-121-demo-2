@@ -2,18 +2,21 @@ import "./style.css";
 //import { Point } from "./draw";
 import { CursorCommand } from "./draw";
 import { LineCommand } from "./draw.ts";
+import { Stickers } from "./draw.ts";
 //import { MarkerLine } from "./draw.ts";
 //import { Cursor } from "./draw.ts";
 //import { Coordinate } from "./draw.ts";
 
 ("use strict");
 const app: HTMLDivElement = document.querySelector("#app")!;
-const gameName = "'";
+const gameName = "🎃";
 const zero = 0;
 const one = 1;
 const scaleFactor = 4;
+let waiting = false;
 let thickness = 3;
 let markerThickness = 15;
+let currCursor = "*";
 
 document.title = gameName;
 
@@ -30,11 +33,13 @@ createLineBreak();
 const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
 const commands: LineCommand[] = [];
 const redoCommands: LineCommand[] = [];
+const stickers: Stickers[] = [];
 
 let cursorCommand: CursorCommand | null = null;
 const drawingChanged = new Event("drawing-changed");
 const cursorChanged = new Event("cursor-changed");
 const toolChanged = new Event("tool-changed");
+const stickerChange = new Event("sticker-changed");
 
 canvas.addEventListener("drawing-changed", () => {
   redraw();
@@ -44,12 +49,16 @@ canvas.addEventListener("cursor-changed", () => {
   redraw();
 });
 
+canvas.addEventListener("sticker-changed", () => {
+  waiting = true;
+});
+
 canvas.addEventListener("tool-changed", () => {
-  if (thickness <= 0) {
+  if (thickness <= zero) {
     thickness = one;
   }
 
-  markerThickness = thickness * scaleFactor; // updates thickness of indicaotr
+  markerThickness = thickness * scaleFactor; // updates thickness of indicator
 });
 
 function redraw() {
@@ -59,8 +68,12 @@ function redraw() {
 
 function exec() {
   commands.forEach((cmd) => cmd.execute(ctx));
+  stickers.forEach((stick) =>
+    stick.execute(ctx, stick.points.x, stick.points.y)
+  );
 
   if (cursorCommand) {
+    cursorCommand.changeCursor(currCursor);
     cursorCommand.updateThickness(markerThickness);
     cursorCommand.execute(ctx);
   }
@@ -88,7 +101,14 @@ canvas.addEventListener("mousemove", (e) => {
   }
 });
 
-canvas.addEventListener("mousedown", () => {
+canvas.addEventListener("mousedown", (e) => {
+  if (waiting) {
+    const newSticker = new Stickers(e.offsetX, e.offsetY, currCursor);
+    stickers.push(newSticker);
+    waiting = false;
+    currCursor = "*";
+  }
+
   currentLineCommand = new LineCommand(thickness);
   commands.push(currentLineCommand);
   redoCommands.splice(zero, redoCommands.length);
@@ -108,6 +128,7 @@ app.append(clearButton);
 
 clearButton.addEventListener("click", () => {
   commands.splice(zero, commands.length);
+  stickers.splice(zero, stickers.length);
   canvas.dispatchEvent(drawingChanged);
 });
 
@@ -175,3 +196,18 @@ const magicBallButton = document.createElement("button");
 magicBallButton.innerHTML = "🔮";
 magicBallButton.style.fontSize = "1.5em";
 app.append(magicBallButton);
+
+ghostButton.addEventListener("click", () => {
+  currCursor = "👻";
+  canvas.dispatchEvent(stickerChange);
+});
+
+owlButton.addEventListener("click", () => {
+  currCursor = "🦉";
+  canvas.dispatchEvent(stickerChange);
+});
+
+magicBallButton.addEventListener("click", () => {
+  currCursor = "🔮";
+  canvas.dispatchEvent(stickerChange);
+});
