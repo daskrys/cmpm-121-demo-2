@@ -99,11 +99,10 @@ export class Stickers {
       this.pointsArr[zero].y,
       this.markerWidth
     );
-
-    //ctx.stroke();
   }
 
   drag(newX: number, newY: number) {
     this.pointsArr.push({ x: newX, y: newY });
   }
 }
+// 11 & 12
