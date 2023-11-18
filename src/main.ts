@@ -35,16 +35,17 @@ const toolChanged = new Event("tool-changed");
 const stickerChange = new Event("sticker-changed");
 
 canvas.addEventListener("drawing-changed", () => {
-  redraw();
+  ctx.clearRect(zero, zero, canvas.width, canvas.height);
+  exec();
 });
 
 canvas.addEventListener("cursor-changed", () => {
-  redraw();
+  canvas.dispatchEvent(drawingChanged);
 });
 
 canvas.addEventListener("sticker-changed", () => {
   waiting = true;
-  redraw();
+  canvas.dispatchEvent(drawingChanged);
 });
 
 canvas.addEventListener("tool-changed", () => {
@@ -54,11 +55,12 @@ canvas.addEventListener("tool-changed", () => {
 
   markerThickness = thickness * scaleFactor; // updates thickness of indicator
 });
-
+/*
 function redraw() {
   ctx.clearRect(zero, zero, canvas.width, canvas.height);
   exec();
 }
+*/
 
 function exec() {
   commands.forEach((cmd) => cmd.execute(ctx));
